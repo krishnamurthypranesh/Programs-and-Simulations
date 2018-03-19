@@ -85,7 +85,21 @@ reduce_speed <- function(object = create_vehicle(),
   if (reduce) final_speed <- speed - 1 
   else final_speed = speed
   
-  list(vehicle = object, init_speed = speed, final_speed = final_speed)
+  final_speed
+}
+
+# distance_reduce ---------------------------------------------------------
+
+distance_reduce <- function(time_sim, object = create_vehicle(),
+                            init_speed = get_speed(object)) {
+  reduced_speed <- reduce_speed(object, init_speed)
+  
+  if (reduced_speed == init_speed) distance <- get_distance(time_sim, object,
+                                                            init_speed)
+  
+  else distance <- get_distance(time_sim, object, reduced_speed)
+  
+  distance
 }
 
 # sim_traffic -------------------------------------------------------------
@@ -97,48 +111,35 @@ sim_traffic <- function(time) {
   init_speed <- vector("numeric", length(time))
   distance_covered <- vector("numeric",length(time))
   
+  reduced_speeds <- vector("numeric", length(time))
+  
   for (i in 1:length(time)) {
     vehicles[[i]] <- create_vehicle()
     init_speed[[i]] <- get_speed(vehicles[[i]])
-    distance_covered[[i]] <- purrr::map2_dbl(.x = vehicles[[i]],
-                                             .y = init_speed[[i]],
-                                             get_distance, time = time)
+    reduced_speeds[[i]] <- reduce_speed(vehicles[[i]],
+                                        init_speed[[i]])
+     if (init_speed[[i]] != reduced_speeds[[i]]) {
+       distance_covered[[i]] <- purrr::map2_dbl(.x = vehicles[[i]],
+                                                .y = init_speed[[i]],
+                                                get_distance, time = time)
+     }
+     
+     else {
+       distance_covered[[i]] <- purrr::map2_dbl(.x = vehicles[[i]],
+                                                .y = reduced_speeds[[i]],
+                                                get_distance, time = time)
+     }
+    
+    # distance_covered[[i]] <- distance_reduce(time, vehicles[[i]],
+    #                                          init_speed[[i]])
   }
   
-  # get_distance(time, object = vehicles[[i]],
-  #              speed = init_speed[[i]])
   sim_data <- data.frame(
     vehicle = vehicles,
     init_speed = init_speed,
-    distance_covered = distance_covered
+    distance_covered = distance_covered,
+    reduced_speeds = reduced_speeds
   )
   
   sim_data
 }
-
-
-# simulated traffic with reduced speed ------------------------------------
-
-sim_traffic2 <- function(time) {
-  stopifnot(is.numeric(time))
-  
-  vehicles <- vector("character", length(time))
-  init_speed <- vector("numeric", length(time))
-  distance_covered <- vector("numeric",length(time))
-  
-  for (i in 1:length(time)) {
-    vehicles[[i]] <- create_vehicle()
-    init_speed[[i]] <- get_speed(vehicles[[i]])
-  }
-  
-  # get reduced speeds
-  
-  reduced_speeds <- vector("list", length(time))
-  for (i in 1:length(time)) {
-    reduced_speeds[[i]] <- reduce_speed(vehicles[[i]], init_speed[[i]])
-  }
-  
-  
-}
-
-sim_traffic2(1:10)
