@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+# <<<<<<< HEAD
 
 # create_vehicle ----------------------------------------------------------
 
@@ -290,4 +290,4 @@ sim_traffic <- function(time) {
   
   sim_data
 }
->>>>>>> 1d2aa74f5e87d76661d223b41551a3aada4c2b6f
+# >>>>>>> 1d2aa74f5e87d76661d223b41551a3aada4c2b6f
