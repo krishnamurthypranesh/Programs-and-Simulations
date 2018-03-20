@@ -119,14 +119,14 @@ sim_traffic <- function(time_sim) {
                                         init_speed[[i]])
     if (init_speed[[i]] != reduced_speeds[[i]]) {
       distance_covered[[i]] <- purrr::map2_dbl(.x = vehicles[[i]],
-                                               .y = init_speed[[i]],
+                                               .y = reduced_speeds[[i]],
                                                get_distance, 
                                                time_sim = time_sim)
     }
     
     else {
       distance_covered[[i]] <- purrr::map2_dbl(.x = vehicles[[i]],
-                                               .y = reduced_speeds[[i]],
+                                               .y = init_speed[[i]],
                                                get_distance, 
                                                time_sim = time_sim)
     }
