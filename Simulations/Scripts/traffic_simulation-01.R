@@ -121,7 +121,7 @@ sim_traffic <- function(time_sim) {
       distance_covered[[i]] <- purrr::map2_dbl(.x = vehicles[[i]],
                                                .y = reduced_speeds[[i]],
                                                get_distance, 
-                                               time_sim = time_sim)
+                                               time_sim = time_sim) # fixed distance_covered error
     }
     
     else {
