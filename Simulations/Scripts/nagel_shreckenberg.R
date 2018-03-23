@@ -23,9 +23,10 @@ car1$name
 cars <- c("mustang", "ragera", "chiron", "veyron", "gallardo", "gtr", 
           "berlinetta", "phantom", "huracan", "sesto elemento")
 
-vapply(cars, create_vehicle)
+vapply(cars, create_vehicle, c(list(name = "", size = 3, speed = 3)))
 
 
+car_dets <- lapply(cars, create_vehicle)
 # Function to reduce speed ------------------------------------------------
 
 reduce_speed <- function(vehicle1, vehicle2) {
@@ -41,12 +42,10 @@ reduce_speed <- function(vehicle1, vehicle2) {
   
   return(invisible(vehicle2))
 }
-
-
 # Function to get distance travelled --------------------------------------
 
-distance_travelled <- function(vehicle, time_duration) {
-  time <- seq(time_duration)
+distance_travelled <- function(vehicle, time_point) {
+  time <- seq(time_point)
   distance <- 0
   i <- 0
   while (i < length(time)) {
@@ -58,21 +57,19 @@ distance_travelled <- function(vehicle, time_duration) {
 }
 # Function to check distance between two cars -----------------------------
 
-red_speed <- function(vehicle1, vehicle2) {
-  distance_car1 <- distance_travelled(car1)
+red_speed <- function(leading = vehicle1, lagging = vehicle2) {
   
-  distance_car2 <- distance_travelled(car2)
+  if (vehicle1$speed < vehicle2$speed) {
+  
+  distance_car1 <- distance_travelled(car1, time_point)
+  
+  distance_car2 <- distance_travelled(car2, time_point)
   
   distance_between <- distance_car1 - distance_car2
   
-  if (distance_betwee < 0) {
-    reduce_speed(vehicle2, vehicle1)
+  vehicle2$speed <- distance_between
   }
-  else {
-    reduce_speed(vehicle1, vehicle2)
-  }
+  
+  else 
 }
 # Function to simulate vehicles ---------------------------------------------
-
-
-
