@@ -23,7 +23,8 @@ car1$name
 cars <- c("mustang", "ragera", "chiron", "veyron", "gallardo", "gtr", 
           "berlinetta", "phantom", "huracan", "sesto elemento")
 
-vapply(cars, create_vehicle)
+vapply(cars, create_vehicle, FUN.VALUE = c(list(name = "car", size = 0,
+                                                speed = 0)))
 
 
 # Function to reduce speed ------------------------------------------------
@@ -50,7 +51,7 @@ distance_travelled <- function(vehicle, time_duration) {
   distance <- 0
   i <- 0
   while (i < length(time)) {
-    distance <- distance + vehicle$speed
+    distance <- distance + vehicle[["speed"]]
     i <- i + 1
   }
   
@@ -74,5 +75,15 @@ red_speed <- function(vehicle1, vehicle2) {
 }
 # Function to simulate vehicles ---------------------------------------------
 
+sim_traffic <- function(length_sim = 10) {
+  cars_list <- lapply(rep("car", length_sim), create_vehicle)
+  
+  # getting distance travelled 
+  distances <- vapply(cars_list, distance_travelled, 
+                      time_duration = length_sim, FUN.VALUE = c(distance = 0))
+  
+  (sim_data <- data.frame(vehicles = as.list(cars_list),
+                          distance = distances))
+}
 
-
+sim_traffic()
