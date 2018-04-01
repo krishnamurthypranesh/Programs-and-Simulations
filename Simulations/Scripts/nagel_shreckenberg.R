@@ -81,7 +81,7 @@ sim_traffic <- function(length_sim = 10) {
   distances <- vapply(cars_list, distance_travelled, 
                       time_duration = length_sim, FUN.VALUE = c(distance = 0))
   
-  (sim_data <- data.frame(vehicles = as.list(cars_list),
+  (sim_data <- data.frame(vehicles = as.data.frame(cars_list),
                           distance = distances))
 }
 

@@ -16,5 +16,4 @@ vehicle <- function(name, size, vmin = 1, vmax = 5) {
 
 # data.frame method for class vehicle -------------------------------------
 
-# as.data.frame.vehicle <- function() {
-# }
+as.data.frame.vehicle <- function() {}
