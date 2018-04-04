@@ -1,0 +1,191 @@
+
+So, what I need to do now is write a function to get my stuff into order. What
+I mean by that is I need to write a function which will take in objects of class
+vehicle and return them as data.frames.
+
+To do this, I need to actually determine how the data.frame representation of
+my object should look.
+
+My object of class "vehicle" has two attributes, a names vector and a class.
+So, I need to get stuff from my names vector (i,e., name, size and speed) and 
+store them in a data.frame.
+
+Here's how I want it to look
+
+as.data.frame(vehicle) =>
+
+name  size  speed
+name  size  speed
+
+here's how I think the code should look.
+
+as.data.frame.vehicle <- function(vehicle) {
+  stopifnot(class(vehicle) == "vehicle")
+  
+  names <- vehicle$name
+  
+  sizes <- vehicle$size
+  
+  speeds <- vehicle$speed
+  
+  vehicle_df <- data.frame(name = names, size = sizes, speed = speeds)
+  
+  vehicle_df
+}
+
+I think that I should write a function that extracts a required element based
+on it's name from the vehicle object.
+
+-----------------------------------------------------------------------------
+extractor <- function(x, element_name) {
+  stopifnot(!is.null(names(x)), is.character(element_name), 
+  length(element_name) == 1) 
+  
+  x[[element_name]]
+}
+-----------------------------------------------------------------------------
+
+as.data.frame.vehicle v2-----------------------------------------------------
+
+as.data.frame.vehicle <- function(vehicle) {
+  stopifnot(class(vehicle) == "vehicle")
+  
+  elements <- c("name", "size", "speed")
+  list_vehicle <- lapply(elements, extractor, x = vehicle)
+  
+  vehicle_df <- data.frame(
+    name = list_vehicle[[1]],
+    size = list_vehicle[[2]],
+    speed = list_vehicle[[3]]
+  )
+  
+  vehicle_df
+}
+-----------------------------------------------------------------------------
+
+Now, the problem with the first function is that it does not work for a list 
+of objects. The thing now is that I've got to re-write the function in such a way that it works for multiple objects. 
+
+But, there is another problem. If you run the code length(vehicle), the result is, not 1, but 3. This means that each object of class vehicle has three other objects inside it. So, there's going to be some problem with a code that goes like this:
+lapply(elements, extractor)
+
+Now, before I jump in and decide to do something complex, let's take a back seat. 
+What if I treated every object stored in the vehicle calss as a row. So, what I mean by that is this, how about I take a list of vehicles and turn each one into a row in a data.frame and then combine them?
+
+What would the function which does that look like?
+
+as.data.frame.vehicle v3-----------------------------------------------------
+as.data.frame.vehicle <- function(vehicle) {
+  stopifnot(class(vehicle) == "vehicle")
+  
+  names <- vehicle$name
+  sizes <- vehicle$size
+  speeds <- vehicle$speed
+  vehicle_df <- data.frame(name = names, size = sizes, speed = speeds)
+  
+  vehicle_df
+}
+-----------------------------------------------------------------------------
+
+as.data.frame.vehicle <- function(vehicle, ...) {
+   
+   if (!is.list(vehicle)) {
+    vehicle <- list(vehicle)
+   }
+   
+   names <- vapply(vehicle, extractor, element_name = "name", 
+   FUN.VALUE = c(name = "a"))
+   sizes <- vapply(vehicle, extractor, element_name = "size", 
+   FUN.VALUE = c(size = 0))
+   speeds <- vapply(vehicle, extractor, element_name = "speed", 
+   FUN.VALUE = c(speed = 0))
+   
+   (vehicle_df <- data.frame(name = names, size = sizes, speed = speeds))
+}
+-----------------------------------------------------------------------------
+
+Ok. I think that I just figured out the problem behind the error with the 
+as.data.frame.vehicle function. Basically, I'd forgotten how functionals work
+
+What happens when you supply lapply with a list? lapply looks inside the list
+And, I guess that that's what happened when I did this:
+lapply(create_vehicle("car", 1), extractor, element_name = "name")
+
+lapply looked inside create_vehicle, and looped over the elements of create_vehicle("car", 1) and found that the first element had no name. That's when extractor's stopifnot kicked in. Thus, I got fucked. 
+
+The reason this happened, is because, the apply family uses simplified subsetting. 
+if car1 <- create_vehicle("car", 1)
+
+car1[[1]] does not have a name and car1[1] has a name. 
+
+And the apply family uses car1[[1]]. So, shit hit the fan. 
+
+I'll look at this tomorrow. 
+
+For now, #PEACE!!
+
+2018-4-03
+
+Now, I think that I've figured out the problem. I keep getting that error of no names because, cars_list is actually a list. This means that before as.data.frame.vehicle is called, as.data.frame.list is called. So, there's going to be some sort of subsetting which occurs before the vapply function is called. And, this subsetting is not preserving, but it's simplifying.
+
+This means that when vapply is actually called, there's going to be another layer of subsetting which is going to be simplifying again. So, extractor is going to look into the object and find that it has no names. That's why I keep getting that error.
+
+So, how can I fix this?
+
+One way would be explode the list out and then iterate on each element. So, that the extractor function works on each element.
+
+How do I do that? Here's an example:
+  1. Look at the length of the list.
+  2. Explode it out.
+  3. Iterate over each element.
+============================================================================
+
+How do I determine if the object has to be exploded or not?
+
+One way would be to look at the length of the object. But, this is going to be counter-productive, because the object has a length of three. 
+
+So, how would the method explode the function?
+
+Let's flip the question on it's head. How about I return the object itself as a data.frame? Would that be possible?
+
+Let's test it out!
+
+Now, it works when I keep stuff as a data.frame. But, I think that keeping things as lists offers more felxibility, which I have a feeling that I'll need.
+============================================================================
+
+Keeping things as lists: When I think about keeping things as lists, a whole world of opportunites opens up. 
+Here's one of them. I can give tailored statistics for each car.
+
+One way of doing this would be simply running this code.
+
+cars <- vector of car names
+
+cars_list <- lapply(rep("car", length_sim), create_vehicle)
+
+names(cars_list) <- sample(cars, size = length_sim, replace = T)
+
+Yep! I'm keeping it as a list...
+=============================================================================
+
+What I want to do now is find a way to get the distance travelled by each of the cars into it's respective object.
+
+Now, I can focus on the aglorithm.
+
+First up, it's an increase in speed.
+
+All vehicles with speeds less than vmax, get a boost in speed by one unit.
+
+The next step in ampping up the speed addition function, is to do it over the duration of the simulation. So, it would be something like this:
+  for (time in T) 
+    if (speed < vmax) speed <- speed + 1
+    continue;
+    
+Now, getting this using functionals means that I'm going to have to do some stuff. So, I'll think about this after I've done my homework regarding functionals
+
+=============================================================================
+
+Next up is introducing a random reduction in speed. 
+What's the probability, 50%. So, that means each car has a 50% chance of having its speed reduced by one unit.
+
+Let's write a function for that.
+
