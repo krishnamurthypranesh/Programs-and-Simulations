@@ -58,10 +58,9 @@ reduce_speed <- function(vehicle1, vehicle2) {
 
 
 # Function to randomly reduce speed ---------------------------------------
-
-rand_speed_reduce <- function(vehicle, const_list = const_list, ...) {
+rand_speed_reduce <- function(vehicle, const_list. = const_list, ...) {
   logi_val <- sample(c(TRUE, FALSE), size = 1)
-  
+  # browser()
   if (isTRUE(logi_val) && vehicle$speed > const_list$vmin) {
     vehicle$speed <- vehicle$speed - 1
   }
@@ -116,8 +115,7 @@ sim_traffic <- function(length_sim = 10, ...) {
   reduced_speeds <- vapply(cars_list, rand_speed_reduce, FUN.VALUE = c(x = 0))
   vehicle_stats <- list(vehicles = cars_list, 
                         distances = distances, 
-                        final_speeds = increased_speeds,
-                        random_speed_reductions = reduced_speeds)
+                        final_speeds = increased_speeds)
   
   vehicle_stats
 }

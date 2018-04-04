@@ -16,12 +16,12 @@ vehicle <- function(type, size, vmin, vmax) {
 
 # Function to get element by name -----------------------------------------
 
-extractor <- function(x, element_name) {
-  stopifnot(!is.null(names(x)), is.character(element_name), 
-            length(element_name) == 1) 
-  
-  x[[element_name]]
-}
+# extractor <- function(x, element_name) {
+#   stopifnot(!is.null(names(x)), is.character(element_name), 
+#             length(element_name) == 1) 
+#   
+#   x[[element_name]]
+# }
 
 # # as.data.frame method for class vehicle -------------------------------------
 # 
