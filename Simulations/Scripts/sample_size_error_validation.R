@@ -4,7 +4,7 @@
 # In this script, I'm just looking to verify [empirically] the relationship
 # between sample size and the value of the sample metric we're considering.
 # If you're wondering how this goes, the error in the estimation of the sample 
-# metric is inversely proportional to the squqre-root of the sample size.
+# metric is inversely proportional to the square-root of the sample size.
 
 # Load Libraries ----------------------------------------------------------
 
@@ -60,6 +60,6 @@ sim_df %>%
   ggplot() + aes(sample_size, value, col = as.factor(metric)) + geom_point() + 
   geom_smooth(span = 1) + facet_wrap(~metric, scales = "free_y")
 
-# A clearly non-linear relationship
+# Clearly a non-linear relationship
 
 sim_df$sample_size > 1000 & sim_df$sample_size < 5000
